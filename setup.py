@@ -9,7 +9,7 @@ minor = 20
 patch = 0
 version = '.'.join([str(v) for v in [major, minor, patch]])
 url = 'https://github.com/dunovank/jupyter-themes'
-download_url = '/'.join([url, 'tarball', 'v' + version])
+download_url = '/'.join([url, 'tarball', f'v{version}'])
 
 
 # get readme content after screenshots for pypi site

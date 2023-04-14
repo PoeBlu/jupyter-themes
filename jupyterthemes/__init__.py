@@ -7,7 +7,7 @@ from . import jtplot
 
 # path to local site-packages/jupyterthemes
 package_dir = os.path.dirname(os.path.realpath(__file__))
-modules = glob(os.path.dirname(__file__) + "/*.py")
+modules = glob(f"{os.path.dirname(__file__)}/*.py")
 __all__ = [os.path.basename(f)[:-3] for f in modules]
 
 major = 0
@@ -20,9 +20,10 @@ __version__ = '.'.join([str(v) for v in [major, minor, patch]])
 def get_themes():
     """ return list of available themes """
     styles_dir = os.path.join(package_dir, 'styles')
-    themes = [os.path.basename(theme).replace('.less', '')
-              for theme in glob('{0}/*.less'.format(styles_dir))]
-    return themes
+    return [
+        os.path.basename(theme).replace('.less', '')
+        for theme in glob('{0}/*.less'.format(styles_dir))
+    ]
 
 
 def install_theme(theme=None,
@@ -61,8 +62,7 @@ def install_theme(theme=None,
 
     doc = '\nConcatenated font imports, .less styles, & custom variables\n'
     s = '*' * 65
-    style_less = '\n'.join(['/*', s, s, doc, s, s, '*/'])
-    style_less += '\n\n\n'
+    style_less = '\n'.join(['/*', s, s, doc, s, s, '*/']) + '\n\n\n'
     style_less += '/* Import Notebook, Markdown, & Code Fonts */\n'
 
     # initialize style_less & style_css
@@ -283,7 +283,7 @@ def main():
 
     elif args.theme is not None:
         if args.theme not in themes:
-            print("Didn't recognize theme name: {}".format(args.theme))
+            print(f"Didn't recognize theme name: {args.theme}")
             print(say_themes)
             args.theme=None
 

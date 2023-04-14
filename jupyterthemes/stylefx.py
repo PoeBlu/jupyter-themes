@@ -87,11 +87,12 @@ def install_precompiled_theme(theme):
     compiled_dir = os.path.join(styles_dir, 'compiled')
     compiled_dir_user = os.path.join(styles_dir_user, 'compiled')
 
-    if (os.path.isdir(compiled_dir_user) and
-            '{}.css'.format(theme) in os.listdir(compiled_dir_user)):
-        theme_src = os.path.join(compiled_dir_user, '{}.css'.format(theme))
+    if os.path.isdir(compiled_dir_user) and f'{theme}.css' in os.listdir(
+        compiled_dir_user
+    ):
+        theme_src = os.path.join(compiled_dir_user, f'{theme}.css')
     else:
-        theme_src = os.path.join(compiled_dir, '{}.css'.format(theme))
+        theme_src = os.path.join(compiled_dir, f'{theme}.css')
     theme_dst = os.path.join(jupyter_custom, 'custom.css')
     copyfile(theme_src, theme_dst)
 
@@ -148,32 +149,31 @@ def set_font_properties(style_less,
             style_less = import_fonts(style_less, tcfont, tcfontpath)
         else:
             tcfont='sans-serif'
-        if nbfont is not None:
-            if nbfont == 'proxima':
-                nbfont, tcfont = ["'Proxima Nova'"]*2
-                style_less = proxima_nova_imports(style_less)
-            else:
-                nbfont, nbfontpath = stored_font_dicts(nbfont)
-                style_less = import_fonts(style_less, nbfont, nbfontpath)
-        else:
+        if nbfont is None:
             nbfont='sans-serif'
 
+        elif nbfont == 'proxima':
+            nbfont, tcfont = ["'Proxima Nova'"]*2
+            style_less = proxima_nova_imports(style_less)
+        else:
+            nbfont, nbfontpath = stored_font_dicts(nbfont)
+            style_less = import_fonts(style_less, nbfont, nbfontpath)
     style_less += '/* Set Font-Type and Font-Size Variables  */\n'
     # font names and fontfamily info for codecells, notebook & textcells
-    style_less += '@monofont: {}; \n'.format(monofont)
-    style_less += '@notebook-fontfamily: {}; \n'.format(nbfont)
-    style_less += '@text-cell-fontfamily: {}; \n'.format(tcfont)
+    style_less += f'@monofont: {monofont}; \n'
+    style_less += f'@notebook-fontfamily: {nbfont}; \n'
+    style_less += f'@text-cell-fontfamily: {tcfont}; \n'
     # font size for codecells, main notebook, notebook-sub, & textcells
-    style_less += '@monofontsize: {}pt; \n'.format(monosize)
-    style_less += '@monofontsize-sub: {}pt; \n'.format(float(monosize) - 1)
-    style_less += '@nb-fontsize: {}pt; \n'.format(nbfontsize)
-    style_less += '@nb-fontsize-sub: {}pt; \n'.format(float(nbfontsize) - 1)
-    style_less += '@text-cell-fontsize: {}pt; \n'.format(tcfontsize)
-    style_less += '@df-header-fontsize: {}pt; \n'.format(float(dffontsize) + 1)
-    style_less += '@df-fontsize: {}pt; \n'.format(dffontsize)
-    style_less += '@output-font-size: {}pt; \n'.format(outfontsize)
-    style_less += '@prompt-fontsize: {}pt; \n'.format(prfontsize)
-    style_less += '@mathfontsize: {}%; \n'.format(mathfontsize)
+    style_less += f'@monofontsize: {monosize}pt; \n'
+    style_less += f'@monofontsize-sub: {float(monosize) - 1}pt; \n'
+    style_less += f'@nb-fontsize: {nbfontsize}pt; \n'
+    style_less += f'@nb-fontsize-sub: {float(nbfontsize) - 1}pt; \n'
+    style_less += f'@text-cell-fontsize: {tcfontsize}pt; \n'
+    style_less += f'@df-header-fontsize: {float(dffontsize) + 1}pt; \n'
+    style_less += f'@df-fontsize: {dffontsize}pt; \n'
+    style_less += f'@output-font-size: {outfontsize}pt; \n'
+    style_less += f'@prompt-fontsize: {prfontsize}pt; \n'
+    style_less += f'@mathfontsize: {mathfontsize}%; \n'
     style_less += '\n\n'
     style_less += '/* Import Theme Colors and Define Layout Variables */\n'
     return style_less
@@ -239,15 +239,16 @@ def style_layout(style_less,
     with fileOpen(theme_name_file, 'w') as f:
         f.write(theme)
 
-    if (os.path.isdir(styles_dir_user) and
-            '{}.less'.format(theme) in os.listdir(styles_dir_user)):
+    if os.path.isdir(styles_dir_user) and f'{theme}.less' in os.listdir(
+        styles_dir_user
+    ):
         theme_relpath = os.path.relpath(
             os.path.join(styles_dir_user, theme), package_dir)
     else:
         theme_relpath = os.path.relpath(
             os.path.join(styles_dir, theme), package_dir)
 
-    style_less += '@import "{}";\n'.format(theme_relpath)
+    style_less += f'@import "{theme_relpath}";\n'
 
     textcell_bg = '@cc-input-bg'
     promptText = '@input-prompt'
@@ -259,8 +260,6 @@ def style_layout(style_less,
     outpromptMinWidth = promptMinWidth # remove + 3 since it will overlay output print() text
     tcPromptWidth = promptMinWidth + 3
     tcPromptFontsize = "@prompt-fontsize"
-    ccOutputBG = '@cc-output-bg-default'
-
     if theme == 'grade3':
         textcell_bg = '@notebook-bg'
     if altprompt:
@@ -273,31 +272,29 @@ def style_layout(style_less,
     if altmd:
         textcell_bg = '@notebook-bg'
         tcPromptBorder = '2px dotted @tc-border-selected'
-    if altout:
-        ccOutputBG = '@notebook-bg'
+    ccOutputBG = '@notebook-bg' if altout else '@cc-output-bg-default'
     if margins != 'auto':
-        margins = '{}px'.format(margins)
+        margins = f'{margins}px'
     if '%' not in cellwidth:
-        cellwidth = str(cellwidth) + 'px'
+        cellwidth = f'{str(cellwidth)}px'
 
-    style_less += '@container-margins: {};\n'.format(margins)
-    style_less += '@cell-width: {}; \n'.format(cellwidth)
-    style_less += '@cc-line-height: {}%; \n'.format(lineheight)
-    style_less += '@text-cell-bg: {}; \n'.format(textcell_bg)
-    style_less += '@cc-prompt-width: {}ex; \n'.format(promptMinWidth)
-    style_less += '@cc-prompt-bg: {}; \n'.format(promptBG)
-    style_less += '@cc-output-bg: {}; \n'.format(ccOutputBG)
-    style_less += '@prompt-text: {}; \n'.format(promptText)
-    style_less += '@prompt-padding: {}; \n'.format(promptPadding)
-    style_less += '@prompt-border: {}; \n'.format(promptBorder)
-    style_less += '@prompt-min-width: {}ex; \n'.format(promptMinWidth)
-    style_less += '@out-prompt-min-width: {}ex; \n'.format(outpromptMinWidth)
-    style_less += '@tc-prompt-width: {}ex; \n'.format(tcPromptWidth)
-    style_less += '@tc-prompt-border: {}; \n'.format(tcPromptBorder)
-    style_less += '@cursor-width: {}px; \n'.format(cursorwidth)
-    style_less += '@cursor-info: @cursor-width solid {}; \n'.format(
-        cursorcolor)
-    style_less += '@tc-prompt-fontsize: {}; \n'.format(tcPromptFontsize)
+    style_less += f'@container-margins: {margins};\n'
+    style_less += f'@cell-width: {cellwidth}; \n'
+    style_less += f'@cc-line-height: {lineheight}%; \n'
+    style_less += f'@text-cell-bg: {textcell_bg}; \n'
+    style_less += f'@cc-prompt-width: {promptMinWidth}ex; \n'
+    style_less += f'@cc-prompt-bg: {promptBG}; \n'
+    style_less += f'@cc-output-bg: {ccOutputBG}; \n'
+    style_less += f'@prompt-text: {promptText}; \n'
+    style_less += f'@prompt-padding: {promptPadding}; \n'
+    style_less += f'@prompt-border: {promptBorder}; \n'
+    style_less += f'@prompt-min-width: {promptMinWidth}ex; \n'
+    style_less += f'@out-prompt-min-width: {outpromptMinWidth}ex; \n'
+    style_less += f'@tc-prompt-width: {tcPromptWidth}ex; \n'
+    style_less += f'@tc-prompt-border: {tcPromptBorder}; \n'
+    style_less += f'@cursor-width: {cursorwidth}px; \n'
+    style_less += f'@cursor-info: @cursor-width solid {cursorcolor}; \n'
+    style_less += f'@tc-prompt-fontsize: {tcPromptFontsize}; \n'
     style_less += '\n\n'
 
     # read-in notebook.less (general nb style)
@@ -414,7 +411,10 @@ def set_mathjax_style(style_css, mathfontsize):
             }
         }
     });\n</script>
-    """ % (int(mathfontsize), '"{}%"'.format(str(mathfontsize)))
+    """ % (
+        int(mathfontsize),
+        f'"{str(mathfontsize)}%"',
+    )
 
     style_css += jax_style
     return style_css
@@ -429,7 +429,7 @@ def set_vim_style(theme):
     if not os.path.isdir(vim_jupyter_nbext):
         os.makedirs(vim_jupyter_nbext)
 
-    vim_less = '@import "styles{}";\n'.format(''.join([os.sep, theme]))
+    vim_less = f"""@import "styles{''.join([os.sep, theme])}";\n"""
 
     with open(vim_style, 'r') as vimstyle:
         vim_less += vimstyle.read() + '\n'
@@ -499,10 +499,7 @@ def get_colors(theme='grade3', c='default', get_dict=False):
 
     cdict['x'] = '@cc-input-fg'
 
-    if get_dict:
-        return cdict
-
-    return cdict[c]
+    return cdict if get_dict else cdict[c]
 
 
 def get_alt_prompt_text_color(theme):
@@ -579,4 +576,4 @@ def stored_font_dicts(fontcode, get_all=False):
         print("\n\tOne of the fonts you requested is not available\n\tSetting all fonts to default")
         return ''
     fontdir = os.sep.join([fontfam, fontdir])
-    return '"{}", {}'.format(fontname, fontfam), fontdir
+    return f'"{fontname}", {fontfam}', fontdir
